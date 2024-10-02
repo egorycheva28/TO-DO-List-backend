@@ -19,18 +19,24 @@ public class TodoController : ControllerBase
 	[HttpGet]//просмотр списка дел
 	public async Task<ActionResult<IEnumerable<TodoItem>>> Get()
 	{
-		return await _context.TodoItems.ToListAsync();
+        
+        return await _context.TodoItems.ToListAsync();
 	}
 
 	[HttpPost]//добавление дела
-	public async Task<IActionResult> AddTask([FromBody] TodoItem task)
+	public async Task<IActionResult> AddTask([FromBody] string task)
 	{
 		if (task == null)
 		{
 			return BadRequest();
 		}
 
-		_context.TodoItems.Add(task);
+        var newTask = new TodoItem
+        {
+            Description = task,
+            Status = false 
+        };
+        _context.TodoItems.Add(newTask);
 		await _context.SaveChangesAsync();
 		return Ok();
 	}
@@ -50,9 +56,9 @@ public class TodoController : ControllerBase
 	}
 
 	[HttpPut("{id}")]//редактирование дела
-	public async Task<IActionResult> EditTask(int id, [FromBody] Description newDescription)
+	public async Task<IActionResult> EditTask(int id, [FromBody] string newDescription)
 	{
-		if (newDescription.DescriptionName == null)
+		if (newDescription == null)
 		{
 			return BadRequest();
 		}
@@ -61,7 +67,7 @@ public class TodoController : ControllerBase
 		{
 			return NotFound("Такого дела не существует");
 		}
-		task.Description = newDescription.DescriptionName;
+		task.Description = newDescription;
 		await _context.SaveChangesAsync();
 		return Ok();
 	}
@@ -94,8 +100,8 @@ public class TodoController : ControllerBase
 		return Ok();
 	}
 
-	[HttpPost("addNewList")]//загрузка нового списка
-	public async Task<IActionResult> AddNewList([FromBody] IEnumerable<TodoItem> tasks)
+    /*[HttpPost("addNewList")]//загрузка нового списка
+    public async Task<IActionResult> AddNewList([FromBody] IEnumerable<TodoItem> tasks)
 	{
 		if (tasks == null || !tasks.Any())
 		{
@@ -115,5 +121,5 @@ public class TodoController : ControllerBase
 		//_context.TodoItems.AddRange(tasks);
 		await _context.SaveChangesAsync();
 		return Ok(tasks);
-	}
+	}*/
 }
